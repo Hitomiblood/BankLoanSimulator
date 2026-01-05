@@ -35,7 +35,7 @@ function Login() {
       login(response.data.token);
       
       // Redirigir según el rol
-      if (response.data.user.isAdmin) {
+      if (response.data.isAdmin) {
         navigate("/admin");
       } else {
         navigate("/loans");

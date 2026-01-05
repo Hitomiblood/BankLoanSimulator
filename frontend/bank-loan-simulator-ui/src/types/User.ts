@@ -11,8 +11,11 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
+  userId: string;
+  fullName: string;
+  email: string;
+  isAdmin: boolean;
   token: string;
-  user: User;
 }
 
 export interface RegisterRequest {
