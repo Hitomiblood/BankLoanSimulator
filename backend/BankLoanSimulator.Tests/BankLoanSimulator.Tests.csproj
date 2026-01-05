@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Testing Framework -->
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="xunit" Version="2.5.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
+    <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    
+    <!-- Mocking Framework -->
+    <PackageReference Include="Moq" Version="4.20.70" />
+    
+    <!-- Fluent Assertions para tests más legibles -->
+    <PackageReference Include="FluentAssertions" Version="6.12.0" />
+    
+    <!-- Entity Framework InMemory para tests de repositorios -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Referencias a los proyectos que vamos a testear -->
+    <ProjectReference Include="..\BankLoanSimulator.API\BankLoanSimulator.API.csproj" />
+    <ProjectReference Include="..\BankLoanSimulator.Application\BankLoanSimulator.Application.csproj" />
+    <ProjectReference Include="..\BankLoanSimulator.Domain\BankLoanSimulator.Domain.csproj" />
+    <ProjectReference Include="..\BankLoanSimulator.Infrastructure\BankLoanSimulator.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

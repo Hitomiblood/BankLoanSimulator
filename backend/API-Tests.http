@@ -1,0 +1,229 @@
+### 🏦 Bank Loan Simulator API - Pruebas
+### Usa esta archivo con REST Client (VS Code Extension) o copia en Postman
+
+@baseUrl = http://localhost:5094/api
+@token = 
+
+### ========================================
+### 📝 REGISTRO DE NUEVO USUARIO
+### ========================================
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "María García",
+  "email": "maria@example.com",
+  "password": "123"
+}
+
+### ========================================
+### 🔑 LOGIN COMO ADMINISTRADOR
+### ========================================
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@test.com",
+  "password": "123"
+}
+
+### NOTA: Copia el "token" de la respuesta y pégalo arriba en @token
+
+### ========================================
+### 🔑 LOGIN COMO USUARIO NORMAL
+### ========================================
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "usuario@example.com",
+  "password": "User123!"
+}
+
+### ========================================
+### 👤 OBTENER INFO DEL USUARIO ACTUAL
+### ========================================
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{token}}
+
+### ========================================
+### 💰 CALCULAR CUOTA MENSUAL (sin crear préstamo)
+### ========================================
+POST {{baseUrl}}/loans/calculate
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "amount": 10000,
+  "interestRate": 12.5,
+  "termInMonths": 24
+}
+
+### ========================================
+### 📋 CREAR NUEVA SOLICITUD DE PRÉSTAMO
+### ========================================
+POST {{baseUrl}}/loans
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "amount": 10000,
+  "interestRate": 12.5,
+  "termInMonths": 24
+}
+
+### ========================================
+### 📋 OBTENER MIS PRÉSTAMOS
+### ========================================
+GET {{baseUrl}}/loans/my-loans
+Authorization: Bearer {{token}}
+
+### ========================================
+### 📋 OBTENER TODOS LOS PRÉSTAMOS (Solo Admin)
+### ========================================
+GET {{baseUrl}}/loans
+Authorization: Bearer {{token}}
+
+### ========================================
+### 📄 OBTENER UN PRÉSTAMO POR ID
+### Reemplaza {id} con un ID real de préstamo
+### ========================================
+GET {{baseUrl}}/loans/{id}
+Authorization: Bearer {{token}}
+
+### ========================================
+### ✅ APROBAR UN PRÉSTAMO (Solo Admin)
+### Reemplaza {id} con un ID real de préstamo
+### ========================================
+PUT {{baseUrl}}/loans/{id}/review
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": 1,
+  "adminComments": "Préstamo aprobado. Excelente historial crediticio."
+}
+
+### Estados: 0 = Pending, 1 = Approved, 2 = Rejected
+
+### ========================================
+### ❌ RECHAZAR UN PRÉSTAMO (Solo Admin)
+### Reemplaza {id} con un ID real de préstamo
+### ========================================
+PUT {{baseUrl}}/loans/{id}/review
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": 2,
+  "adminComments": "Préstamo rechazado. Ingresos insuficientes."
+}
+
+### ========================================
+### 🗑️ ELIMINAR UN PRÉSTAMO
+### Reemplaza {id} con un ID real de préstamo
+### ========================================
+DELETE {{baseUrl}}/loans/{id}
+Authorization: Bearer {{token}}
+
+### ========================================
+### 🧪 FLUJO COMPLETO DE PRUEBA
+### ========================================
+
+### 1. Login como usuario normal
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "usuario@example.com",
+  "password": "User123!"
+}
+
+###
+
+### 2. Crear préstamo de $15,000 a 36 meses
+POST {{baseUrl}}/loans
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "amount": 15000,
+  "interestRate": 10.5,
+  "termInMonths": 36
+}
+
+###
+
+### 3. Ver mis préstamos
+GET {{baseUrl}}/loans/my-loans
+Authorization: Bearer {{token}}
+
+###
+
+### 4. Login como admin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@test.com",
+  "password": "123"
+}
+
+###
+
+### 5. Ver todos los préstamos pendientes
+GET {{baseUrl}}/loans
+Authorization: Bearer {{token}}
+
+###
+
+### 6. Aprobar el préstamo (usa el ID del paso 2)
+PUT {{baseUrl}}/loans/{id-del-prestamo}/review
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": 1,
+  "adminComments": "Aprobado por el administrador"
+}
+
+### ========================================
+### 📊 EJEMPLOS DE CÁLCULOS
+### ========================================
+
+### Préstamo pequeño: $5,000 a 12 meses al 8%
+POST {{baseUrl}}/loans/calculate
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "amount": 5000,
+  "interestRate": 8.0,
+  "termInMonths": 12
+}
+
+###
+
+### Préstamo mediano: $25,000 a 60 meses al 15%
+POST {{baseUrl}}/loans/calculate
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "amount": 25000,
+  "interestRate": 15.0,
+  "termInMonths": 60
+}
+
+###
+
+### Préstamo grande: $100,000 a 120 meses al 12%
+POST {{baseUrl}}/loans/calculate
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "amount": 100000,
+  "interestRate": 12.0,
+  "termInMonths": 120
+}

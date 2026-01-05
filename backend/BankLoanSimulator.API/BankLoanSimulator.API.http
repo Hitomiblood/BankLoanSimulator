@@ -1,0 +1,6 @@
+@BankLoanSimulator.API_HostAddress = http://localhost:5094
+
+GET {{BankLoanSimulator.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
