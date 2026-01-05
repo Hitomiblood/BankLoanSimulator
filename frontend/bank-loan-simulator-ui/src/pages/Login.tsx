@@ -115,10 +115,10 @@ function Login() {
               <strong>Usuarios de prueba:</strong>
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Admin: admin@bankloan.com / Admin123!
+              Admin: admin@test.com / 123
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Usuario: juan@example.com / User123!
+              Usuario: usuario@test.com / 123
             </Typography>
           </Box>
         </Paper>
