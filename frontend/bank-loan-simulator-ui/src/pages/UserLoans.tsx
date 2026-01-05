@@ -41,7 +41,7 @@ function UserLoans() {
 
   if (loading) {
     return (
-      <>
+      <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
         <Navbar />
         <Container>
           <Box
@@ -55,14 +55,14 @@ function UserLoans() {
             <CircularProgress />
           </Box>
         </Container>
-      </>
+      </Box>
     );
   }
 
   return (
-    <>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
       <Navbar />
-      <Container sx={{ mt: 4 }}>
+      <Container sx={{ mt: 4, pb: 4 }}>
         <Box
           sx={{
             display: "flex",
@@ -113,7 +113,7 @@ function UserLoans() {
           </Box>
         )}
       </Container>
-    </>
+    </Box>
   );
 }
 

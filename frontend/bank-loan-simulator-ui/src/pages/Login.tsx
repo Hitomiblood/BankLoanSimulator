@@ -51,15 +51,16 @@ function Login() {
   };
 
   return (
-    <Container maxWidth="sm">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', display: 'flex', alignItems: 'center' }}>
+      <Container maxWidth="sm">
+        <Box
+          sx={{
+            marginTop: 8,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
         <Paper elevation={3} sx={{ padding: 4, width: "100%" }}>
           <Typography component="h1" variant="h4" align="center" gutterBottom>
             Bank Loan Simulator
@@ -118,12 +119,13 @@ function Login() {
               Admin: admin@test.com / 123
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Usuario: usuario@test.com / 123
+              Usuario: usuario@example.com / 123
             </Typography>
           </Box>
         </Paper>
-      </Box>
-    </Container>
+        </Box>
+      </Container>
+    </Box>
   );
 }
 

@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import api from "../api/axios";
 import Navbar from "../components/Navbar";
 import LoanCard from "../components/LoanCard";
-import type { Loan, LoanStatus, ReviewLoanRequest } from "../types/Loan";
+import type { Loan, ReviewLoanRequest } from "../types/Loan";
+import { LoanStatus } from "../types/Loan";
 import {
   Container,
   Typography,
@@ -88,8 +89,8 @@ function AdminLoans() {
 
   if (loading) {
     return (
-      <>
-        <Navbar isAdmin />
+      <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+        <Navbar />
         <Container>
           <Box
             sx={{
@@ -102,14 +103,14 @@ function AdminLoans() {
             <CircularProgress />
           </Box>
         </Container>
-      </>
+      </Box>
     );
   }
 
   return (
-    <>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
       <Navbar isAdmin />
-      <Container sx={{ mt: 4 }}>
+      <Container sx={{ mt: 4, pb: 4 }}>
         <Box
           sx={{
             display: "flex",
@@ -208,7 +209,7 @@ function AdminLoans() {
           </DialogActions>
         </Dialog>
       </Container>
-    </>
+    </Box>
   );
 }
 

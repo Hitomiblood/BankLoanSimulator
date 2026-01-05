@@ -1,4 +1,5 @@
-import type { Loan, LoanStatus } from "../types/Loan";
+import type { Loan } from "../types/Loan";
+import { LoanStatus } from "../types/Loan";
 import {
   Card,
   CardContent,

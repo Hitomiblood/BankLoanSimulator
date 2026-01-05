@@ -85,9 +85,9 @@ function RequestLoan() {
   };
 
   return (
-    <>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
       <Navbar />
-      <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Container maxWidth="md" sx={{ mt: 4, pb: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Solicitar Préstamo
         </Typography>
@@ -198,7 +198,7 @@ function RequestLoan() {
           </Typography>
         </Box>
       </Container>
-    </>
+    </Box>
   );
 }
 
