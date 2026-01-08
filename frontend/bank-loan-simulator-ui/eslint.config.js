@@ -19,5 +19,9 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules:{
+      '@typescript-eslint/prefer-enum-initializers': 'off',
+      '@typescript-eslint/no-enum': 'off',
+    },
   },
 ])

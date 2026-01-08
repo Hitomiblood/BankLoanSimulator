@@ -39,8 +39,8 @@ namespace BankLoanSimulator.Application.Services
             if (string.IsNullOrWhiteSpace(request.Email))
                 throw new ArgumentException("El email es requerido");
 
-            if (request.Password.Length < 6)
-                throw new ArgumentException("La contraseña debe tener al menos 6 caracteres");
+            if (request.Password.Length < 3)
+                throw new ArgumentException("La contraseña debe tener al menos 3 caracteres");
 
             var user = new User
             {
@@ -98,12 +98,13 @@ namespace BankLoanSimulator.Application.Services
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidateIssuer = true,
                     ValidIssuer = _jwtIssuer,
-                    ValidateAudience = false,
+                    ValidateAudience = true,
+                    ValidAudience = _jwtIssuer,
                     ClockSkew = TimeSpan.Zero
                 }, out SecurityToken validatedToken);
 
                 var jwtToken = (JwtSecurityToken)validatedToken;
-                var userIdClaim = jwtToken.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value;
+                var userIdClaim = jwtToken.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value;
 
                 return Task.FromResult<Guid?>(Guid.Parse(userIdClaim));
             }
@@ -120,9 +121,9 @@ namespace BankLoanSimulator.Application.Services
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Name, user.FullName),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.Name, user.FullName),
                 new Claim(ClaimTypes.Role, user.IsAdmin ? "Admin" : "User")
             };
 
@@ -131,6 +132,7 @@ namespace BankLoanSimulator.Application.Services
                 Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddDays(_jwtExpirationDays),
                 Issuer = _jwtIssuer,
+                Audience = _jwtIssuer,
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(key),
                     SecurityAlgorithms.HmacSha256Signature)

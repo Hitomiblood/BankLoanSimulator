@@ -28,7 +28,7 @@ function AdminLoans() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null);
-  const [reviewStatus, setReviewStatus] = useState<LoanStatus>(1);
+  const [reviewStatus, setReviewStatus] = useState<LoanStatus>(LoanStatus.Approved);
   const [adminComments, setAdminComments] = useState("");
   const [submitting, setSubmitting] = useState(false);
 

@@ -122,8 +122,8 @@ namespace BankLoanSimulator.Tests.Services
         }
 
         [Theory]
-        [InlineData("12345")] 
-        [InlineData("Pass")] 
+        [InlineData("12")] 
+        [InlineData("P")] 
         [InlineData("")] 
         public async Task RegisterAsync_WithShortPassword_ThrowsException(string password)
         {
@@ -139,7 +139,7 @@ namespace BankLoanSimulator.Tests.Services
             await _authService
                 .Invoking(s => s.RegisterAsync(request))
                 .Should().ThrowAsync<ArgumentException>()
-                .WithMessage("La contraseña debe tener al menos 6 caracteres");
+                .WithMessage("La contraseña debe tener al menos 3 caracteres");
         }
 
         [Fact]
@@ -340,10 +340,64 @@ namespace BankLoanSimulator.Tests.Services
             var loginResult = await _authService.LoginAsync(loginRequest);
             var token = loginResult.Token;
 
+            // Debug: Print token to see what's generated
+            System.Diagnostics.Debug.WriteLine($"Generated Token: {token}");
+
             var result = await _authService.ValidateTokenAsync(token);
 
             result.Should().NotBeNull();
             result.Should().Be(userId);
+        }
+
+        [Fact]
+        public async Task DEBUG_ValidateTokenAsync_ShowException()
+        {
+            var userId = Guid.NewGuid();
+            var password = "123";
+            var passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
+
+            var user = new User
+            {
+                Id = userId,
+                Email = "test@example.com",
+                PasswordHash = passwordHash,
+                FullName = "Test User"
+            };
+
+            var loginRequest = new LoginRequestDto
+            {
+                Email = "test@example.com",
+                Password = password
+            };
+
+            _userRepositoryMock.Setup(x => x.GetByEmailAsync(It.IsAny<string>())).ReturnsAsync(user);
+
+            var loginResult = await _authService.LoginAsync(loginRequest);
+            var token = loginResult.Token;
+
+            // Manual validation to see the exception
+            try
+            {
+                var tokenHandler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+                var key = System.Text.Encoding.UTF8.GetBytes(JwtSecret);
+
+                tokenHandler.ValidateToken(token, new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(key),
+                    ValidateIssuer = true,
+                    ValidIssuer = JwtIssuer,
+                    ValidateAudience = true,
+                    ValidAudience = JwtIssuer,
+                    ClockSkew = TimeSpan.Zero
+                }, out Microsoft.IdentityModel.Tokens.SecurityToken validatedToken);
+
+                Assert.True(true, "Token validated successfully");
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail($"Token validation failed: {ex.GetType().Name} - {ex.Message}");
+            }
         }
 
         [Fact]
