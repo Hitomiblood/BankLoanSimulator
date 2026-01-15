@@ -37,7 +37,7 @@ Content-Type: application/json
 
 {
   "email": "usuario@example.com",
-  "password": "User123!"
+  "password": "123"
 }
 
 ### ========================================
@@ -136,7 +136,7 @@ Content-Type: application/json
 
 {
   "email": "usuario@example.com",
-  "password": "User123!"
+  "password": "123"
 }
 
 ###

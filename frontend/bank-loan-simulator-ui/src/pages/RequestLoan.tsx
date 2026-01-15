@@ -141,7 +141,7 @@ function RequestLoan() {
               type="number"
               value={termInMonths}
               onChange={(e) => setTermInMonths(e.target.value)}
-              helperText="Plazo entre 1 y 360 meses"
+              helperText="Plazo entre 1 y 240 meses"
               sx={{ mb: 3 }}
               required
             />

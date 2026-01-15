@@ -159,7 +159,7 @@ logger.LogInformation("=================================================");
 logger.LogInformation("");
 logger.LogInformation("📧 Usuarios de prueba:");
 logger.LogInformation("  Admin: admin@test.com / 123");
-logger.LogInformation("  Usuario: usuario@example.com / User123!");
+logger.LogInformation("  Usuario: usuario@example.com / 123");
 logger.LogInformation("");
 logger.LogInformation("=================================================");
 
