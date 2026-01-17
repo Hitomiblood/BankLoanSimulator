@@ -25,6 +25,13 @@ yarn-error.log*
 package-lock.json
 .pnpm-debug.log*
 
+# ===== Testing =====
+coverage/
+.nyc_output/
+*.coverage
+.jest-cache/
+junit.xml
+
 # ===== IDEs =====
 .idea/
 *.iml
