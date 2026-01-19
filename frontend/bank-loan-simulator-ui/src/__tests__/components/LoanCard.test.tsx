@@ -96,6 +96,19 @@ describe('LoanCard Component', () => {
       const chip = container.querySelector('.MuiChip-colorError');
       expect(chip).toBeInTheDocument();
     });
+
+    it('debe manejar estados desconocidos con label "Desconocido"', () => {
+      const unknownLoan = { ...mockLoanPending, status: 999 as LoanStatus };
+      render(<LoanCard loan={unknownLoan} />);
+      expect(screen.getByText('Desconocido')).toBeInTheDocument();
+    });
+
+    it('debe usar color "default" para estados desconocidos', () => {
+      const unknownLoan = { ...mockLoanPending, status: 999 as LoanStatus };
+      const { container } = render(<LoanCard loan={unknownLoan} />);
+      const chip = container.querySelector('.MuiChip-colorDefault');
+      expect(chip).toBeInTheDocument();
+    });
   });
 
   describe('Información del usuario (showUser prop)', () => {
