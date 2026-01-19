@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { describe, it, jest, beforeEach } from '@jest/globals';
 import '@testing-library/jest-dom';
 import { BrowserRouter } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
@@ -8,7 +8,7 @@ import { AuthProvider } from '../../auth/AuthContext';
 // Mock de react-router-dom
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+  ...(jest.requireActual('react-router-dom') as any),
   useNavigate: () => mockNavigate,
 }));
 

@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { describe, it, jest, beforeEach } from '@jest/globals';
 import '@testing-library/jest-dom';
 import { BrowserRouter } from 'react-router-dom';
 import Login from '../../pages/Login';
@@ -13,7 +13,7 @@ const mockedApi = api as jest.Mocked<typeof api>;
 // Mock de react-router-dom
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+  ...(jest.requireActual('react-router-dom') as any),
   useNavigate: () => mockNavigate,
 }));
 
@@ -290,7 +290,7 @@ describe('Login Page - Integration Tests', () => {
       mockedApi.post.mockImplementationOnce(() => 
         new Promise((resolve) => setTimeout(() => resolve({
           data: { token: 'test', isAdmin: false }
-        }), 100))
+        }), 100)) as any
       );
 
       render(<LoginWithProviders />);

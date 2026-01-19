@@ -1,4 +1,5 @@
 import { render, screen, waitFor, fireEvent, within } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import AdminLoans from '../../pages/AdminLoans';
@@ -27,21 +28,24 @@ jest.mock('../../components/LoanCard', () => {
 describe('AdminLoans', () => {
   const mockLoans: Loan[] = [
     {
-      id: 1,
-      userId: 1,
+      id: '1',
+      userId: '1',
       amount: 10000,
       interestRate: 5.5,
       termInMonths: 12,
       monthlyPayment: 858.33,
       status: LoanStatus.Pending,
       requestDate: '2024-01-15',
-      reviewDate: null,
-      adminComments: null,
-      userName: 'Juan Pérez',
+      reviewDate: undefined,
+      adminComments: undefined,
+      user: {
+        fullName: 'Juan Pérez',
+        email: 'juan.perez@example.com',
+      },
     },
     {
-      id: 2,
-      userId: 2,
+      id: '2',
+      userId: '2',
       amount: 20000,
       interestRate: 4.5,
       termInMonths: 24,
@@ -50,11 +54,14 @@ describe('AdminLoans', () => {
       requestDate: '2024-01-10',
       reviewDate: '2024-01-12',
       adminComments: 'Aprobado sin problemas',
-      userName: 'María García',
+      user: {
+        fullName: 'María García',
+        email: 'maria.garcia@example.com',
+      },
     },
     {
-      id: 3,
-      userId: 3,
+      id: '3',
+      userId: '3',
       amount: 5000,
       interestRate: 6.0,
       termInMonths: 6,
@@ -63,7 +70,10 @@ describe('AdminLoans', () => {
       requestDate: '2024-01-14',
       reviewDate: '2024-01-16',
       adminComments: 'No cumple requisitos',
-      userName: 'Carlos López',
+      user: {
+        fullName: 'Carlos López',
+        email: 'carlos.lopez@example.com',
+      },
     },
   ];
 

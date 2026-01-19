@@ -1,4 +1,5 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import { BrowserRouter } from 'react-router-dom';
 import UserLoans from '../../pages/UserLoans';
 import api from '../../api/axios';
@@ -20,28 +21,31 @@ jest.mock('../../components/LoanCard', () => {
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+  ...(jest.requireActual('react-router-dom') as any),
   useNavigate: () => mockNavigate,
 }));
 
 describe('UserLoans', () => {
   const mockLoans: Loan[] = [
     {
-      id: 1,
-      userId: 1,
+      id: '1',
+      userId: '1',
       amount: 10000,
       interestRate: 5.5,
       termInMonths: 12,
       monthlyPayment: 858.33,
       status: LoanStatus.Pending,
       requestDate: '2024-01-15',
-      reviewDate: null,
-      adminComments: null,
-      userName: 'Juan Pérez',
+      reviewDate: undefined,
+      adminComments: undefined,
+      user: {
+        fullName: 'Juan Pérez',
+        email: 'juan.perez@example.com',
+      },
     },
     {
-      id: 2,
-      userId: 1,
+      id: '2',
+      userId: '1',
       amount: 20000,
       interestRate: 4.5,
       termInMonths: 24,
@@ -50,7 +54,10 @@ describe('UserLoans', () => {
       requestDate: '2024-01-10',
       reviewDate: '2024-01-12',
       adminComments: 'Aprobado sin problemas',
-      userName: 'Juan Pérez',
+      user: {
+        fullName: 'Juan Pérez',
+        email: 'juan.perez@example.com',
+      },
     },
   ];
 
@@ -248,7 +255,7 @@ describe('UserLoans', () => {
         response: { data: { message: 'Error temporal' } },
       });
 
-      const { rerender } = render(
+      const { unmount } = render(
         <BrowserRouter>
           <UserLoans />
         </BrowserRouter>
@@ -261,7 +268,11 @@ describe('UserLoans', () => {
       // Luego tiene éxito
       (api.get as jest.Mock).mockResolvedValue({ data: mockLoans });
 
-      rerender(
+      // Desmontar completamente el componente
+      unmount();
+
+      // Volver a montar (esto ejecuta useEffect otra vez)
+      render(
         <BrowserRouter>
           <UserLoans />
         </BrowserRouter>
@@ -269,6 +280,7 @@ describe('UserLoans', () => {
 
       await waitFor(() => {
         expect(screen.queryByText('Error temporal')).not.toBeInTheDocument();
+        expect(screen.getByTestId('loan-card-1')).toBeInTheDocument();
       });
     });
   });

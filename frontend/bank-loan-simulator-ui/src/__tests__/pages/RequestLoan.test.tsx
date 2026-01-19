@@ -1,4 +1,4 @@
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import RequestLoan from '../../pages/RequestLoan';
@@ -382,6 +382,16 @@ describe('RequestLoan', () => {
           termInMonths: 24,
         });
       });
+
+      // Esperar el mensaje de éxito para asegurar que las actualizaciones de estado terminen
+      await waitFor(() => {
+        expect(screen.getByText('Préstamo solicitado exitosamente')).toBeInTheDocument();
+      });
+
+      // Limpiar el setTimeout pendiente
+      act(() => {
+        jest.advanceTimersByTime(1500);
+      });
     });
 
     it('debe mostrar mensaje de éxito después de solicitar el préstamo', async () => {
@@ -402,6 +412,11 @@ describe('RequestLoan', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Préstamo solicitado exitosamente')).toBeInTheDocument();
+      });
+
+      // Limpiar el setTimeout pendiente
+      act(() => {
+        jest.advanceTimersByTime(1500);
       });
     });
 
@@ -426,7 +441,9 @@ describe('RequestLoan', () => {
       });
 
       // Fast-forward time
-      jest.advanceTimersByTime(1500);
+      act(() => {
+        jest.advanceTimersByTime(1500);
+      });
 
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalledWith('/loans');

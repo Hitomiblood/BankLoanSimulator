@@ -8,5 +8,10 @@
     "jsx": "react-jsx",
     "types": ["jest", "@testing-library/jest-dom", "@types/jest"]
   },
-  "include": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/setupTests.ts"]
+  "include": [
+    "src/**/*.test.ts", 
+    "src/**/*.test.tsx", 
+    "src/setupTests.ts",
+    "src/jest.d.ts"
+  ]
 }
