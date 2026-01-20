@@ -71,12 +71,12 @@ El proyecto utiliza **Material-UI (MUI)** como biblioteca de componentes UI:
 **Por qué empezar aquí:** Asegura que las nuevas features no rompan funcionalidad existente
 
 **Tareas:**
-- [ ] Configurar Jest + React Testing Library
-- [ ] Tests unitarios para servicios (AuthService, LoanService)
-- [ ] Tests de componentes (LoanCard, Navbar, Login)
-- [ ] Tests de integración para flujos críticos
-- [ ] Configurar Husky + lint-staged para pre-commit hooks
-- [ ] Cobertura mínima del 70%
+- [x] Configurar Jest + React Testing Library
+- [x] Tests unitarios para servicios (AuthService, LoanService)
+- [x] Tests de componentes (LoanCard, Navbar, Login)
+- [x] Tests de integración para flujos críticos
+- [x] Configurar Husky + lint-staged para pre-commit hooks
+- [x] Cobertura mínima del 70%
 
 **Impacto:** 🛡️ Confianza para refactorizar y agregar features
 
