@@ -9,7 +9,7 @@ import RequestLoan from "./pages/RequestLoan";
 import AdminLoans from "./pages/AdminLoans";
 
 const theme = createTheme({
-  palette: { 
+  palette: {  
     mode: 'light',
     background: {
       default: '#ffffff',
