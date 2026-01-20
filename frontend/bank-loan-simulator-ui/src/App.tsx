@@ -8,9 +8,6 @@ import UserLoans from "./pages/UserLoans";
 import RequestLoan from "./pages/RequestLoan";
 import AdminLoans from "./pages/AdminLoans";
 
-// Test para Husky - esta línea debería detectarse
-const unusedVariable = "test";
-
 const theme = createTheme({
   palette: {  
     mode: 'light',

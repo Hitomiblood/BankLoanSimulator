@@ -4,8 +4,8 @@
   },
   "lint-staged": {
     "frontend/bank-loan-simulator-ui/src/**/*.{ts,tsx}": [
-      "cd frontend/bank-loan-simulator-ui && eslint --fix",
-      "cd frontend/bank-loan-simulator-ui && jest --bail --findRelatedTests --passWithNoTests"
+      "bash -c 'cd frontend/bank-loan-simulator-ui && npx eslint --fix'",
+      "bash -c 'cd frontend/bank-loan-simulator-ui && npx jest --bail --findRelatedTests --passWithNoTests'"
     ]
   },
   "dependencies": {
