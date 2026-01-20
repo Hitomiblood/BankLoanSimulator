@@ -1,9 +1,22 @@
 {
+  "scripts": {
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "frontend/bank-loan-simulator-ui/src/**/*.{ts,tsx}": [
+      "cd frontend/bank-loan-simulator-ui && eslint --fix",
+      "cd frontend/bank-loan-simulator-ui && jest --bail --findRelatedTests --passWithNoTests"
+    ]
+  },
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/material": "^7.3.6",
     "axios": "^1.13.2",
     "react-router-dom": "^7.11.0"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7"
   }
 }
