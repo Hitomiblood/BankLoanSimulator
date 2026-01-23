@@ -1,6 +1,24 @@
 import { render, screen } from '@testing-library/react';
 import App from '../App';
 
+// Mock ErrorBoundary
+jest.mock('../components/ErrorBoundary', () => {
+  return function MockErrorBoundary({ children }: { children: React.ReactNode }) {
+    return <div data-testid="error-boundary">{children}</div>;
+  };
+});
+
+// Mock react-toastify
+jest.mock('react-toastify', () => ({
+  ToastContainer: () => <div data-testid="toast-container">ToastContainer</div>,
+  toast: {
+    error: jest.fn(),
+    success: jest.fn(),
+    info: jest.fn(),
+    warning: jest.fn(),
+  },
+}));
+
 // Mock all page components
 jest.mock('../pages/Login', () => {
   return function MockLogin() {
@@ -46,6 +64,16 @@ describe('App', () => {
     it('debe renderizar sin errores', () => {
       render(<App />);
       expect(screen.getByText('Login Page')).toBeInTheDocument();
+    });
+
+    it('debe estar envuelto en ErrorBoundary', () => {
+      render(<App />);
+      expect(screen.getByTestId('error-boundary')).toBeInTheDocument();
+    });
+
+    it('debe incluir ToastContainer para notificaciones', () => {
+      render(<App />);
+      expect(screen.getByTestId('toast-container')).toBeInTheDocument();
     });
 
     it('debe aplicar el tema de Material-UI', () => {

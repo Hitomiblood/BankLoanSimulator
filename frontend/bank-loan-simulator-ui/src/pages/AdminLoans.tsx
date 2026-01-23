@@ -4,12 +4,12 @@ import Navbar from "../components/Navbar";
 import LoanCard from "../components/LoanCard";
 import type { Loan, ReviewLoanRequest } from "../types/Loan";
 import { LoanStatus } from "../types/Loan";
+import { showErrorToast, showSuccessToast } from "../utils/errorHandler";
 import {
   Container,
   Typography,
   Box,
   CircularProgress,
-  Alert,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -26,7 +26,6 @@ import {
 function AdminLoans() {
   const [loans, setLoans] = useState<Loan[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null);
   const [reviewStatus, setReviewStatus] = useState<LoanStatus>(LoanStatus.Approved);
   const [adminComments, setAdminComments] = useState("");
@@ -41,11 +40,8 @@ function AdminLoans() {
       setLoading(true);
       const response = await api.get<Loan[]>("/loans");
       setLoans(response.data);
-      setError("");
-    } catch (err: any) {
-      setError(
-        err.response?.data?.message || "Error al cargar los préstamos"
-      );
+    } catch (err: unknown) {
+      showErrorToast(err, "Error al cargar los préstamos");
     } finally {
       setLoading(false);
     }
@@ -74,12 +70,12 @@ function AdminLoans() {
 
       await api.put(`/loans/${selectedLoan.id}/review`, reviewData);
       
+      showSuccessToast("Préstamo actualizado exitosamente");
+      showSuccessToast("Préstamo actualizado exitosamente");
       await fetchLoans();
       handleCloseDialog();
-    } catch (err: any) {
-      setError(
-        err.response?.data?.message || "Error al revisar el préstamo"
-      );
+    } catch (err: unknown) {
+      showErrorToast(err, "Error al actualizar el préstamo");
     } finally {
       setSubmitting(false);
     }
@@ -129,12 +125,6 @@ function AdminLoans() {
             />
           )}
         </Box>
-
-        {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {error}
-          </Alert>
-        )}
 
         {loans.length === 0 ? (
           <Box sx={{ textAlign: "center", mt: 8 }}>

@@ -3,12 +3,12 @@ import api from "../api/axios";
 import Navbar from "../components/Navbar";
 import LoanCard from "../components/LoanCard";
 import type { Loan } from "../types/Loan";
+import { showErrorToast } from "../utils/errorHandler";
 import {
   Container,
   Typography,
   Box,
   CircularProgress,
-  Alert,
   Button,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
@@ -17,7 +17,6 @@ import { useNavigate } from "react-router-dom";
 function UserLoans() {
   const [loans, setLoans] = useState<Loan[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,11 +28,8 @@ function UserLoans() {
       setLoading(true);
       const response = await api.get<Loan[]>("/loans/my-loans");
       setLoans(response.data);
-      setError("");
-    } catch (err: any) {
-      setError(
-        err.response?.data?.message || "Error al cargar los préstamos"
-      );
+    } catch (err: unknown) {
+      showErrorToast(err, "Error al cargar los préstamos");
     } finally {
       setLoading(false);
     }
@@ -82,12 +78,6 @@ function UserLoans() {
             Solicitar Préstamo
           </Button>
         </Box>
-
-        {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {error}
-          </Alert>
-        )}
 
         {loans.length === 0 ? (
           <Box sx={{ textAlign: "center", mt: 8 }}>

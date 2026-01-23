@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import RequestLoan from '../../pages/RequestLoan';
 import api from '../../api/axios';
+import * as errorHandler from '../../utils/errorHandler';
 
 // Mock dependencies
 jest.mock('../../api/axios');
@@ -11,6 +12,14 @@ jest.mock('../../components/Navbar', () => {
     return <div data-testid="navbar">Navbar</div>;
   };
 });
+
+// Mock de errorHandler
+jest.mock('../../utils/errorHandler', () => ({
+  showErrorToast: jest.fn(),
+  showSuccessToast: jest.fn(),
+  showWarningToast: jest.fn(),
+  showInfoToast: jest.fn(),
+}));
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -213,7 +222,7 @@ describe('RequestLoan', () => {
       fireEvent.click(screen.getByRole('button', { name: /calcular cuota mensual/i }));
 
       await waitFor(() => {
-        expect(screen.getByText('Por favor completa todos los campos')).toBeInTheDocument();
+        expect(errorHandler.showWarningToast).toHaveBeenCalledWith('Por favor completa todos los campos para calcular');
       });
 
       expect(api.post).not.toHaveBeenCalled();
@@ -239,7 +248,16 @@ describe('RequestLoan', () => {
       fireEvent.click(screen.getByRole('button', { name: /calcular cuota mensual/i }));
 
       await waitFor(() => {
-        expect(screen.getByText(errorMessage)).toBeInTheDocument();
+        expect(errorHandler.showErrorToast).toHaveBeenCalledWith(
+          expect.objectContaining({
+            response: expect.objectContaining({
+              data: expect.objectContaining({
+                message: errorMessage
+              })
+            })
+          }),
+          'Error al calcular la cuota mensual'
+        );
       });
     });
 
@@ -260,7 +278,10 @@ describe('RequestLoan', () => {
       fireEvent.click(screen.getByRole('button', { name: /calcular cuota mensual/i }));
 
       await waitFor(() => {
-        expect(screen.getByText('Error al calcular la cuota mensual')).toBeInTheDocument();
+        expect(errorHandler.showErrorToast).toHaveBeenCalledWith(
+          expect.any(Error),
+          'Error al calcular la cuota mensual'
+        );
       });
     });
 
@@ -307,7 +328,16 @@ describe('RequestLoan', () => {
       fireEvent.click(screen.getByRole('button', { name: /calcular cuota mensual/i }));
 
       await waitFor(() => {
-        expect(screen.getByText('Error temporal')).toBeInTheDocument();
+        expect(errorHandler.showErrorToast).toHaveBeenCalledWith(
+          expect.objectContaining({
+            response: expect.objectContaining({
+              data: expect.objectContaining({
+                message: 'Error temporal'
+              })
+            })
+          }),
+          'Error al calcular la cuota mensual'
+        );
       });
 
       // Calcular de nuevo (exitoso)
@@ -318,7 +348,7 @@ describe('RequestLoan', () => {
       fireEvent.click(screen.getByRole('button', { name: /calcular cuota mensual/i }));
 
       await waitFor(() => {
-        expect(screen.queryByText('Error temporal')).not.toBeInTheDocument();
+        expect(screen.getByText(/858,33/)).toBeInTheDocument();
       });
     });
 
@@ -385,7 +415,7 @@ describe('RequestLoan', () => {
 
       // Esperar el mensaje de éxito para asegurar que las actualizaciones de estado terminen
       await waitFor(() => {
-        expect(screen.getByText('Préstamo solicitado exitosamente')).toBeInTheDocument();
+        expect(errorHandler.showSuccessToast).toHaveBeenCalledWith('¡Préstamo solicitado exitosamente!');
       });
 
       // Limpiar el setTimeout pendiente
@@ -411,7 +441,7 @@ describe('RequestLoan', () => {
       fireEvent.submit(screen.getByRole('button', { name: /solicitar préstamo/i }).closest('form')!);
 
       await waitFor(() => {
-        expect(screen.getByText('Préstamo solicitado exitosamente')).toBeInTheDocument();
+        expect(errorHandler.showSuccessToast).toHaveBeenCalledWith('¡Préstamo solicitado exitosamente!');
       });
 
       // Limpiar el setTimeout pendiente
@@ -437,7 +467,7 @@ describe('RequestLoan', () => {
       fireEvent.submit(screen.getByRole('button', { name: /solicitar préstamo/i }).closest('form')!);
 
       await waitFor(() => {
-        expect(screen.getByText('Préstamo solicitado exitosamente')).toBeInTheDocument();
+        expect(errorHandler.showSuccessToast).toHaveBeenCalledWith('¡Préstamo solicitado exitosamente!');
       });
 
       // Fast-forward time
@@ -517,7 +547,16 @@ describe('RequestLoan', () => {
       fireEvent.submit(screen.getByRole('button', { name: /solicitar préstamo/i }).closest('form')!);
 
       await waitFor(() => {
-        expect(screen.getByText(errorMessage)).toBeInTheDocument();
+        expect(errorHandler.showErrorToast).toHaveBeenCalledWith(
+          expect.objectContaining({
+            response: expect.objectContaining({
+              data: expect.objectContaining({
+                message: errorMessage
+              })
+            })
+          }),
+          'Error al solicitar el préstamo'
+        );
       });
     });
 
@@ -538,7 +577,10 @@ describe('RequestLoan', () => {
       fireEvent.submit(screen.getByRole('button', { name: /solicitar préstamo/i }).closest('form')!);
 
       await waitFor(() => {
-        expect(screen.getByText('Error al solicitar el préstamo')).toBeInTheDocument();
+        expect(errorHandler.showErrorToast).toHaveBeenCalledWith(
+          expect.any(Error),
+          'Error al solicitar el préstamo'
+        );
       });
     });
 
@@ -561,16 +603,26 @@ describe('RequestLoan', () => {
       fireEvent.submit(screen.getByRole('button', { name: /solicitar préstamo/i }).closest('form')!);
 
       await waitFor(() => {
-        expect(screen.getByText('Error temporal')).toBeInTheDocument();
+        expect(errorHandler.showErrorToast).toHaveBeenCalledWith(
+          expect.objectContaining({
+            response: expect.objectContaining({
+              data: expect.objectContaining({
+                message: 'Error temporal'
+              })
+            })
+          }),
+          'Error al solicitar el préstamo'
+        );
       });
 
       // Enviar de nuevo (exitoso)
-      (api.post as jest.Mock).mockResolvedValue({});
+      (api.post as jest.Mock).mockResolvedValue({ data: {} });
+      (errorHandler.showSuccessToast as jest.Mock).mockClear();
 
       fireEvent.submit(screen.getByRole('button', { name: /solicitar préstamo/i }).closest('form')!);
 
       await waitFor(() => {
-        expect(screen.queryByText('Error temporal')).not.toBeInTheDocument();
+        expect(errorHandler.showSuccessToast).toHaveBeenCalledWith('¡Préstamo solicitado exitosamente!');
       });
     });
   });

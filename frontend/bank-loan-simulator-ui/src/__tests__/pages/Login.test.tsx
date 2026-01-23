@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 import Login from '../../pages/Login';
 import { AuthProvider } from '../../auth/AuthContext';
 import api from '../../api/axios';
+import * as errorHandler from '../../utils/errorHandler';
 
 // Mock del módulo axios
 jest.mock('../../api/axios');
@@ -13,8 +14,18 @@ const mockedApi = api as jest.Mocked<typeof api>;
 // Mock de react-router-dom
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
-  ...(jest.requireActual('react-router-dom') as any),
+  ...(jest.requireActual('react-router-dom') as Record<string, unknown>),
   useNavigate: () => mockNavigate,
+}));
+
+// Mock de errorHandler
+jest.mock('../../utils/errorHandler', () => ({
+  showErrorToast: jest.fn(),
+  showSuccessToast: jest.fn(),
+  showWarningToast: jest.fn(),
+  showInfoToast: jest.fn(),
+  parseAxiosError: jest.fn(() => 'Error message'),
+  handleError: jest.fn(),
 }));
 
 // Componente wrapper para tests
@@ -33,6 +44,7 @@ describe('Login Page - Integration Tests', () => {
     // Limpiar mocks antes de cada test
     mockNavigate.mockClear();
     mockedApi.post.mockClear();
+    jest.clearAllMocks();
     localStorage.clear();
   });
 
@@ -121,6 +133,7 @@ describe('Login Page - Integration Tests', () => {
       await waitFor(() => {
         expect(localStorage.getItem('token')).toBe('fake-token');
         expect(mockNavigate).toHaveBeenCalledWith('/loans');
+        expect(errorHandler.showSuccessToast).toHaveBeenCalledWith('¡Inicio de sesión exitoso!');
       });
     });
 
@@ -152,14 +165,16 @@ describe('Login Page - Integration Tests', () => {
       await waitFor(() => {
         expect(localStorage.getItem('token')).toBe('admin-token');
         expect(mockNavigate).toHaveBeenCalledWith('/admin');
+        expect(errorHandler.showSuccessToast).toHaveBeenCalledWith('¡Inicio de sesión exitoso!');
       });
     });
   });
 
-  describe('Manejo de errores', () => {
-    it('debe mostrar mensaje de error cuando las credenciales son incorrectas', async () => {
+  describe('Manejo de errores con Toast', () => {
+    it('debe mostrar toast de error cuando las credenciales son incorrectas (400)', async () => {
       mockedApi.post.mockRejectedValueOnce({
         response: {
+          status: 400,
           data: {
             message: 'Credenciales inválidas',
           },
@@ -177,7 +192,7 @@ describe('Login Page - Integration Tests', () => {
       fireEvent.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.getByText('Credenciales inválidas')).toBeInTheDocument();
+        expect(errorHandler.showErrorToast).toHaveBeenCalled();
       });
 
       // No debe haber navegado
@@ -186,7 +201,7 @@ describe('Login Page - Integration Tests', () => {
       expect(localStorage.getItem('token')).toBeNull();
     });
 
-    it('debe mostrar mensaje de error genérico cuando falla la petición', async () => {
+    it('debe mostrar toast de error genérico cuando falla la petición', async () => {
       mockedApi.post.mockRejectedValueOnce(new Error('Network error'));
 
       render(<LoginWithProviders />);
@@ -200,61 +215,19 @@ describe('Login Page - Integration Tests', () => {
       fireEvent.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.getByText(/Error al iniciar sesión. Verifica tus credenciales./i)).toBeInTheDocument();
+        expect(errorHandler.showErrorToast).toHaveBeenCalled();
       });
+
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
 
-    it('debe limpiar el error cuando se vuelve a enviar el formulario', async () => {
-      // Primera llamada falla
+    it('no debe mostrar Alert components (usamos toast ahora)', async () => {
       mockedApi.post.mockRejectedValueOnce({
         response: {
-          data: {
-            message: 'Error inicial',
-          },
+          status: 400,
+          data: { message: 'Error' },
         },
       });
-
-      render(<LoginWithProviders />);
-      
-      const emailInput = screen.getByLabelText(/email/i);
-      const passwordInput = screen.getByLabelText(/contraseña/i);
-      const submitButton = screen.getByRole('button', { name: /iniciar sesión/i });
-      
-      // Primer intento (falla)
-      fireEvent.change(emailInput, { target: { value: 'user@test.com' } });
-      fireEvent.change(passwordInput, { target: { value: 'wrong' } });
-      fireEvent.click(submitButton);
-
-      await waitFor(() => {
-        expect(screen.getByText('Error inicial')).toBeInTheDocument();
-      });
-
-      // Segunda llamada exitosa
-      mockedApi.post.mockResolvedValueOnce({
-        data: {
-          token: 'valid-token',
-          isAdmin: false,
-        },
-      });
-
-      // Segundo intento (exitoso)
-      fireEvent.change(passwordInput, { target: { value: 'correct' } });
-      fireEvent.click(submitButton);
-
-      await waitFor(() => {
-        expect(screen.queryByText('Error inicial')).not.toBeInTheDocument();
-      });
-    });
-  });
-
-  describe('Estados de carga', () => {
-    it('debe mostrar "Cargando..." mientras procesa el login', async () => {
-      let resolvePromise: (value: any) => void;
-      const promise = new Promise((resolve) => {
-        resolvePromise = resolve;
-      });
-
-      mockedApi.post.mockReturnValueOnce(promise as any);
 
       render(<LoginWithProviders />);
       
@@ -266,9 +239,38 @@ describe('Login Page - Integration Tests', () => {
       fireEvent.change(passwordInput, { target: { value: '123' } });
       fireEvent.click(submitButton);
 
-      // Verificar que muestra "Cargando..."
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: /cargando.../i })).toBeInTheDocument();
+        expect(errorHandler.showErrorToast).toHaveBeenCalled();
+      });
+
+      // No debe haber elementos Alert en el DOM
+      const alerts = screen.queryAllByRole('alert');
+      expect(alerts.length).toBe(0);
+    });
+  });
+
+  describe('Estados de carga', () => {
+    it('debe mostrar "Iniciando sesión..." mientras procesa el login', async () => {
+      let resolvePromise: (value: { data: { token: string; isAdmin: boolean } }) => void;
+      const promise = new Promise((resolve) => {
+        resolvePromise = resolve;
+      });
+
+      mockedApi.post.mockReturnValueOnce(promise as ReturnType<typeof mockedApi.post>);
+
+      render(<LoginWithProviders />);
+      
+      const emailInput = screen.getByLabelText(/email/i);
+      const passwordInput = screen.getByLabelText(/contraseña/i);
+      const submitButton = screen.getByRole('button', { name: /iniciar sesión/i });
+      
+      fireEvent.change(emailInput, { target: { value: 'user@test.com' } });
+      fireEvent.change(passwordInput, { target: { value: '123' } });
+      fireEvent.click(submitButton);
+
+      // Verificar que muestra "Iniciando sesión..."
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /iniciando sesión.../i })).toBeInTheDocument();
         expect(submitButton).toBeDisabled();
       });
 
@@ -286,24 +288,29 @@ describe('Login Page - Integration Tests', () => {
       });
     });
 
-    it('debe deshabilitar el botón durante la carga', async () => {
+    it('debe deshabilitar el botón y campos durante la carga', async () => {
       mockedApi.post.mockImplementationOnce(() => 
         new Promise((resolve) => setTimeout(() => resolve({
           data: { token: 'test', isAdmin: false }
-        }), 100)) as any
+        }), 100)) as Promise<{ data: { token: string; isAdmin: boolean } }>
       );
 
       render(<LoginWithProviders />);
       
-      const emailInput = screen.getByLabelText(/email/i);
-      const passwordInput = screen.getByLabelText(/contraseña/i);
+      const emailInput = screen.getByLabelText(/email/i) as HTMLInputElement;
+      const passwordInput = screen.getByLabelText(/contraseña/i) as HTMLInputElement;
       const submitButton = screen.getByRole('button', { name: /iniciar sesión/i });
       
       fireEvent.change(emailInput, { target: { value: 'user@test.com' } });
       fireEvent.change(passwordInput, { target: { value: '123' } });
       fireEvent.click(submitButton);
 
-      expect(submitButton).toBeDisabled();
+      // Botón y campos deben estar deshabilitados
+      await waitFor(() => {
+        expect(submitButton).toBeDisabled();
+        expect(emailInput).toBeDisabled();
+        expect(passwordInput).toBeDisabled();
+      });
     });
   });
 

@@ -6,9 +6,19 @@ import AdminLoans from '../../pages/AdminLoans';
 import api from '../../api/axios';
 import type { Loan } from '../../types/Loan';
 import { LoanStatus } from '../../types/Loan';
+import * as errorHandler from '../../utils/errorHandler';
 
 // Mock dependencies
 jest.mock('../../api/axios');
+
+// Mock de errorHandler
+jest.mock('../../utils/errorHandler', () => ({
+  showErrorToast: jest.fn(),
+  showSuccessToast: jest.fn(),
+  showWarningToast: jest.fn(),
+  showInfoToast: jest.fn(),
+}));
+
 jest.mock('../../components/Navbar', () => {
   return function MockNavbar({ isAdmin }: { isAdmin?: boolean }) {
     return <div data-testid="navbar">Navbar {isAdmin && '(Admin)'}</div>;
@@ -271,7 +281,16 @@ describe('AdminLoans', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText(errorMessage)).toBeInTheDocument();
+        expect(errorHandler.showErrorToast).toHaveBeenCalledWith(
+          expect.objectContaining({
+            response: expect.objectContaining({
+              data: expect.objectContaining({
+                message: errorMessage
+              })
+            })
+          }),
+          'Error al cargar los préstamos'
+        );
       });
     });
 
@@ -285,7 +304,10 @@ describe('AdminLoans', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('Error al cargar los préstamos')).toBeInTheDocument();
+        expect(errorHandler.showErrorToast).toHaveBeenCalledWith(
+          expect.any(Error),
+          'Error al cargar los préstamos'
+        );
       });
     });
 
@@ -752,7 +774,16 @@ describe('AdminLoans', () => {
       fireEvent.click(saveButton);
 
       await waitFor(() => {
-        expect(screen.getByText(errorMessage)).toBeInTheDocument();
+        expect(errorHandler.showErrorToast).toHaveBeenCalledWith(
+          expect.objectContaining({
+            response: expect.objectContaining({
+              data: expect.objectContaining({
+                message: errorMessage
+              })
+            })
+          }),
+          'Error al actualizar el préstamo'
+        );
       });
     });
 
@@ -781,7 +812,10 @@ describe('AdminLoans', () => {
       fireEvent.click(saveButton);
 
       await waitFor(() => {
-        expect(screen.getByText('Error al revisar el préstamo')).toBeInTheDocument();
+        expect(errorHandler.showErrorToast).toHaveBeenCalledWith(
+          expect.any(Error),
+          'Error al actualizar el préstamo'
+        );
       });
     });
   });

@@ -109,11 +109,11 @@ backend/BankLoanSimulator.Tests/
 **Por qué:** Mejora experiencia de usuario y facilita debugging
 
 **Tareas:**
-- [ ] Crear componente ErrorBoundary para errores de React
-- [ ] Interceptor de Axios para errores HTTP centralizados
-- [ ] Componente Toast/Snackbar para notificaciones
-- [ ] Logging estructurado en frontend (Sentry/LogRocket)
-- [ ] Mensajes de error amigables y traducidos
+- [x] Crear componente ErrorBoundary para errores de React
+- [x] Interceptor de Axios para errores HTTP centralizados
+- [x] Componente Toast/Snackbar para notificaciones
+- [x] Mensajes de error amigables y traducidos
+- [ ] Logging estructurado en frontend (Sentry/LogRocket) - Futuro
 
 **Implementación:**
 ```tsx

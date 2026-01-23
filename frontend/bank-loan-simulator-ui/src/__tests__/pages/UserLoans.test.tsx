@@ -5,9 +5,19 @@ import UserLoans from '../../pages/UserLoans';
 import api from '../../api/axios';
 import type { Loan } from '../../types/Loan';
 import { LoanStatus } from '../../types/Loan';
+import * as errorHandler from '../../utils/errorHandler';
 
 // Mock dependencies
 jest.mock('../../api/axios');
+
+// Mock de errorHandler
+jest.mock('../../utils/errorHandler', () => ({
+  showErrorToast: jest.fn(),
+  showSuccessToast: jest.fn(),
+  showWarningToast: jest.fn(),
+  showInfoToast: jest.fn(),
+}));
+
 jest.mock('../../components/Navbar', () => {
   return function MockNavbar() {
     return <div data-testid="navbar">Navbar</div>;
@@ -21,7 +31,7 @@ jest.mock('../../components/LoanCard', () => {
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
-  ...(jest.requireActual('react-router-dom') as any),
+  ...(jest.requireActual('react-router-dom') as Record<string, unknown>),
   useNavigate: () => mockNavigate,
 }));
 
@@ -231,7 +241,16 @@ describe('UserLoans', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText(errorMessage)).toBeInTheDocument();
+        expect(errorHandler.showErrorToast).toHaveBeenCalledWith(
+          expect.objectContaining({
+            response: expect.objectContaining({
+              data: expect.objectContaining({
+                message: errorMessage
+              })
+            })
+          }),
+          'Error al cargar los préstamos'
+        );
       });
     });
 
@@ -245,7 +264,10 @@ describe('UserLoans', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('Error al cargar los préstamos')).toBeInTheDocument();
+        expect(errorHandler.showErrorToast).toHaveBeenCalledWith(
+          expect.any(Error),
+          'Error al cargar los préstamos'
+        );
       });
     });
 
@@ -262,7 +284,16 @@ describe('UserLoans', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('Error temporal')).toBeInTheDocument();
+        expect(errorHandler.showErrorToast).toHaveBeenCalledWith(
+          expect.objectContaining({
+            response: expect.objectContaining({
+              data: expect.objectContaining({
+                message: 'Error temporal'
+              })
+            })
+          }),
+          'Error al cargar los préstamos'
+        );
       });
 
       // Luego tiene éxito
@@ -279,7 +310,6 @@ describe('UserLoans', () => {
       );
 
       await waitFor(() => {
-        expect(screen.queryByText('Error temporal')).not.toBeInTheDocument();
         expect(screen.getByTestId('loan-card-1')).toBeInTheDocument();
       });
     });

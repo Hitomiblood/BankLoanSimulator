@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import Navbar from "../components/Navbar";
 import type { CalculatePaymentResponse } from "../types/Loan";
+import { showErrorToast, showSuccessToast, showWarningToast } from "../utils/errorHandler";
 import {
   Container,
   Typography,
@@ -10,7 +11,6 @@ import {
   TextField,
   Button,
   Paper,
-  Alert,
   InputAdornment,
   Divider,
 } from "@mui/material";
@@ -22,17 +22,14 @@ function RequestLoan() {
   const [interestRate, setInterestRate] = useState("");
   const [termInMonths, setTermInMonths] = useState("");
   const [monthlyPayment, setMonthlyPayment] = useState<number | null>(null);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleCalculate = async () => {
-    setError("");
     setMonthlyPayment(null);
 
     if (!amount || !interestRate || !termInMonths) {
-      setError("Por favor completa todos los campos");
+      showWarningToast("Por favor completa todos los campos para calcular");
       return;
     }
 
@@ -46,17 +43,14 @@ function RequestLoan() {
         }
       );
       setMonthlyPayment(response.data.monthlyPayment);
-    } catch (err: any) {
-      setError(
-        err.response?.data?.message || "Error al calcular la cuota mensual"
-      );
+      showSuccessToast("¡Cuota mensual calculada!");
+    } catch (err: unknown) {
+      showErrorToast(err, "Error al calcular la cuota mensual");
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
     setLoading(true);
 
     try {
@@ -66,12 +60,12 @@ function RequestLoan() {
         termInMonths: parseInt(termInMonths),
       });
 
-      setSuccess("Préstamo solicitado exitosamente");
+      showSuccessToast("¡Préstamo solicitado exitosamente!");
       setTimeout(() => {
         navigate("/loans");
       }, 1500);
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Error al solicitar el préstamo");
+    } catch (err: unknown) {
+      showErrorToast(err, "Error al solicitar el préstamo");
     } finally {
       setLoading(false);
     }
@@ -93,17 +87,6 @@ function RequestLoan() {
         </Typography>
 
         <Paper elevation={3} sx={{ p: 4, mt: 3 }}>
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
-          {success && (
-            <Alert severity="success" sx={{ mb: 2 }}>
-              {success}
-            </Alert>
-          )}
-
           <Box component="form" onSubmit={handleSubmit}>
             <TextField
               fullWidth
@@ -119,6 +102,7 @@ function RequestLoan() {
               helperText="Monto entre €1,000 y €1,000,000"
               sx={{ mb: 3 }}
               required
+              disabled={loading}
             />
 
             <TextField
@@ -133,6 +117,7 @@ function RequestLoan() {
               helperText="Tasa entre 0% y 50%"
               sx={{ mb: 3 }}
               required
+              disabled={loading}
             />
 
             <TextField
@@ -144,6 +129,7 @@ function RequestLoan() {
               helperText="Plazo entre 1 y 240 meses"
               sx={{ mb: 3 }}
               required
+              disabled={loading}
             />
 
             <Button

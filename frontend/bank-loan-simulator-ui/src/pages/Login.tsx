@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import api from "../api/axios";
 import type { LoginResponse } from "../types/User";
+import { showErrorToast, showSuccessToast } from "../utils/errorHandler";
 import {
   Container,
   Box,
@@ -10,20 +11,17 @@ import {
   Button,
   Typography,
   Paper,
-  Alert,
 } from "@mui/material";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
 
     try {
@@ -33,6 +31,7 @@ function Login() {
       });
 
       login(response.data.token);
+      showSuccessToast("¡Inicio de sesión exitoso!");
       
       // Redirigir según el rol
       if (response.data.isAdmin) {
@@ -40,11 +39,13 @@ function Login() {
       } else {
         navigate("/loans");
       }
-    } catch (err: any) {
-      setError(
-        err.response?.data?.message || 
-        "Error al iniciar sesión. Verifica tus credenciales."
-      );
+    } catch (err: unknown) {
+      // Manejar errores de login
+      if (err.response?.status === 400) {
+        showErrorToast(err, "Credenciales inválidas. Por favor verifica tu email y contraseña.");
+      } else {
+        showErrorToast(err, "Error al iniciar sesión. Por favor intenta nuevamente.");
+      }
     } finally {
       setLoading(false);
     }
@@ -69,12 +70,6 @@ function Login() {
             Iniciar Sesión
           </Typography>
 
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
-
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
             <TextField
               margin="normal"
@@ -87,6 +82,7 @@ function Login() {
               autoFocus
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
             />
             <TextField
               margin="normal"
@@ -99,6 +95,7 @@ function Login() {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
             />
             <Button
               type="submit"
@@ -107,7 +104,7 @@ function Login() {
               sx={{ mt: 3, mb: 2 }}
               disabled={loading}
             >
-              {loading ? "Cargando..." : "Iniciar Sesión"}
+              {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
             </Button>
           </Box>
 
