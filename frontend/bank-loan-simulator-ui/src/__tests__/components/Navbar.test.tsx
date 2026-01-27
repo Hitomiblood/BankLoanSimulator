@@ -8,7 +8,7 @@ import { AuthProvider } from '../../auth/AuthContext';
 // Mock de react-router-dom
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
-  ...(jest.requireActual('react-router-dom') as any),
+  ...(jest.requireActual('react-router-dom') as Record<string, unknown>),
   useNavigate: () => mockNavigate,
 }));
 

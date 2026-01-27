@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import UserLoans from "./pages/UserLoans";
 import RequestLoan from "./pages/RequestLoan";
 import AdminLoans from "./pages/AdminLoans";
+import SentryTestComponent from "./components/SentryTestComponent";
 
 const theme = createTheme({
   palette: {  
@@ -61,6 +62,9 @@ function App() {
                 <AdminLoans />
               </PrivateRoute>
             } />
+
+            {/* 🧪 Ruta de prueba para Sentry - ELIMINAR EN PRODUCCIÓN */}
+            <Route path="/sentry-test" element={<SentryTestComponent />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

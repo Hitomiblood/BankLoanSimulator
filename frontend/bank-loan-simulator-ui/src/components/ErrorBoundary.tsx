@@ -3,6 +3,7 @@ import type { ErrorInfo, ReactNode } from 'react';
 import { Box, Button, Container, Paper, Typography } from '@mui/material';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import { captureError } from '../config/sentry';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -12,6 +13,7 @@ interface ErrorBoundaryState {
   hasError: boolean;
   error: Error | null;
   errorInfo: ErrorInfo | null;
+  eventId: string | null;
 }
 
 /**
@@ -19,6 +21,8 @@ interface ErrorBoundaryState {
  * 
  * Captura errores de React en cualquier parte del árbol de componentes
  * y muestra una UI de fallback amigable en lugar de crashear la aplicación.
+ * 
+ * Integrado con Sentry para logging automático de errores.
  * 
  * Uso:
  * <ErrorBoundary>
@@ -32,6 +36,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       hasError: false,
       error: null,
       errorInfo: null,
+      eventId: null,
     };
   }
 
@@ -41,18 +46,20 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    // Puedes registrar el error en un servicio de logging como Sentry
-    console.error('ErrorBoundary capturó un error:', error, errorInfo);
+    // Logging local
+    console.error('🔴 ErrorBoundary capturó un error:', error, errorInfo);
     
+    // Enviar a Sentry con contexto completo
+    captureError(error, {
+      context: 'React ErrorBoundary',
+      componentStack: errorInfo.componentStack,
+      errorBoundary: true,
+    });
+
     this.setState({
       error,
       errorInfo,
     });
-
-    // TODO: Integrar con Sentry o LogRocket
-    // if (window.Sentry) {
-    //   window.Sentry.captureException(error, { contexts: { react: { componentStack: errorInfo.componentStack } } });
-    // }
   }
 
   handleReset = (): void => {
@@ -60,6 +67,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       hasError: false,
       error: null,
       errorInfo: null,
+      eventId: null,
     });
   };
 

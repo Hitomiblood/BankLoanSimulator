@@ -29,7 +29,7 @@ Esta guía documenta el sistema completo de manejo de errores implementado en la
 - ✅ Botón para reintentar
 - ✅ Detalles técnicos en desarrollo
 - ✅ Logging a consola
-- 🔄 Preparado para integración con Sentry
+- ✅ **Integrado con Sentry** - Envía errores automáticamente 🆕
 
 ---
 
@@ -467,9 +467,92 @@ describe('parseAxiosError', () => {
 
 ---
 
+---
+
+## 🎯 Sentry Integration - Logging Estructurado 🆕
+
+### ¿Qué es Sentry?
+
+Sentry es una plataforma de monitoreo de errores que:
+- ✅ Captura errores automáticamente en producción
+- ✅ Proporciona stack traces completos
+- ✅ Registra breadcrumbs (pasos previos al error)
+- ✅ Asocia errores con usuarios específicos
+- ✅ Monitorea performance de la aplicación
+- ✅ Envía alertas cuando ocurren errores críticos
+
+### Implementación en Esta Aplicación
+
+**Archivo de Configuración:** `src/config/sentry.ts`
+
+#### Captura Automática
+
+1. **Errores de React** → Capturados por `ErrorBoundary`
+2. **Errores HTTP** → Capturados por interceptor de Axios
+3. **Breadcrumbs** → Automáticos en navegación y API calls
+4. **Contexto de Usuario** → Automático en login/logout
+
+#### Funciones Principales
+
+```tsx
+import { 
+  captureError, 
+  captureMessage, 
+  setUserContext, 
+  addBreadcrumb 
+} from '../config/sentry';
+
+// Capturar error con contexto
+try {
+  await processPayment(loanId);
+} catch (error) {
+  captureError(error, {
+    context: "Payment Processing",
+    loanId,
+    amount: 50000,
+    userId: user.id
+  });
+}
+
+// Capturar mensaje informativo
+captureMessage("Usuario intentó acceso no autorizado", {
+  level: "warning",
+  extra: { userId: user.id }
+});
+
+// Breadcrumb personalizado
+addBreadcrumb({
+  category: "loan-approval",
+  message: "Admin revisando documentos",
+  data: { loanId: loan.id }
+});
+```
+
+### Configuración Inicial
+
+1. Crear cuenta en https://sentry.io/
+2. Crear proyecto React
+3. Obtener DSN
+4. Añadir en `.env`:
+   ```env
+   VITE_SENTRY_DSN=tu-dsn-aqui
+   ```
+5. Reiniciar servidor
+
+### Documentación Completa
+
+Ver **[SENTRY_GUIDE.md](./SENTRY_GUIDE.md)** para:
+- Guía completa de configuración
+- Uso avanzado
+- Best practices
+- Troubleshooting
+- Dashboard de Sentry
+
+---
+
 ## 🚀 Próximos Pasos
 
-1. **Integración con Sentry** para logging en producción
+1. ✅ ~~Integración con Sentry~~ **COMPLETADO** 🎉
 2. **Error retry logic** para peticiones fallidas
 3. **Offline detection** con toast informativo
 4. **Rate limiting notifications** cuando se exceda límite
@@ -483,6 +566,7 @@ describe('parseAxiosError', () => {
 - [React Toastify](https://fkhadra.github.io/react-toastify/introduction)
 - [Axios Interceptors](https://axios-http.com/docs/interceptors)
 - [Sentry React](https://docs.sentry.io/platforms/javascript/guides/react/)
+- **[Sentry Guide - Esta Aplicación](./SENTRY_GUIDE.md)** 🆕
 
 ---
 
@@ -498,11 +582,11 @@ describe('parseAxiosError', () => {
 - [x] Actualizar AdminLoans con nuevo sistema
 - [x] Actualizar UserLoans con nuevo sistema
 - [x] Documentar sistema completo
-- [ ] Tests unitarios (próxima fase)
-- [ ] Integración con Sentry (futuro)
+- [x] Tests unitarios ✅
+- [x] **Integración con Sentry** ✅ 🆕
 
 ---
 
-**Última actualización:** Enero 2026
-**Versión:** 1.0.0
+**Última actualización:** Enero 2026  
+**Versión:** 2.0.0 (Con Sentry)  
 **Autor:** Bank Loan Simulator Team

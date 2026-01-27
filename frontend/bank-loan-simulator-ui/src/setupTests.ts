@@ -1,6 +1,20 @@
 import '@testing-library/jest-dom';
 import { TextEncoder, TextDecoder } from 'util';
 
+// Configurar entorno de test para que Sentry lo detecte
+process.env.NODE_ENV = 'test';
+
+// Mock completo de Sentry para evitar problemas con import.meta
+jest.mock('./config/sentry', () => ({
+  initializeSentry: jest.fn(),
+  captureError: jest.fn(),
+  captureMessage: jest.fn(),
+  setUserContext: jest.fn(),
+  clearUserContext: jest.fn(),
+  addBreadcrumb: jest.fn(),
+  startTransaction: jest.fn(() => null),
+}));
+
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder as typeof global.TextDecoder;
 
