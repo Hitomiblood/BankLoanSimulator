@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 import Login from '../../pages/Login';
 import { AuthProvider } from '../../auth/AuthContext';
 import api from '../../api/axios';
+import type { InternalAxiosRequestConfig } from 'axios';
 import * as errorHandler from '../../utils/errorHandler';
 
 // Mock del módulo axios
@@ -289,11 +290,16 @@ describe('Login Page - Integration Tests', () => {
     });
 
     it('debe deshabilitar el botón y campos durante la carga', async () => {
-      mockedApi.post.mockImplementationOnce(() => 
-        new Promise((resolve) => setTimeout(() => resolve({
-          data: { token: 'test', isAdmin: false }
-        }), 100)) as Promise<{ data: { token: string; isAdmin: boolean } }>
-      );
+      mockedApi.post.mockResolvedValueOnce({
+        data: {
+          token: 'test',
+          isAdmin: false,
+        },
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: {} as InternalAxiosRequestConfig,
+      });
 
       render(<LoginWithProviders />);
       

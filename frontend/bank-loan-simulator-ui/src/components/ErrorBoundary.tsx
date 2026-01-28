@@ -4,6 +4,7 @@ import { Box, Button, Container, Paper, Typography } from '@mui/material';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { captureError } from '../config/sentry';
+import { goHome } from '../utils/navigation';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -142,7 +143,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
               
               <Button
                 variant="outlined"
-                onClick={() => window.location.href = '/'}
+                onClick={goHome}
               >
                 Volver al Inicio
               </Button>

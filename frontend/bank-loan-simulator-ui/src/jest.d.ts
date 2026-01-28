@@ -3,11 +3,18 @@
 import type { TestingLibraryMatchers } from '@testing-library/jest-dom/matchers';
 
 declare module '@jest/expect' {
-  type Matchers<R = void> = TestingLibraryMatchers<typeof expect.stringContaining, R>;
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  interface Matchers<R = void> extends TestingLibraryMatchers<typeof expect.stringContaining, R> {}
+}
+
+declare module '@jest/globals' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  interface Matchers<R = void> extends TestingLibraryMatchers<typeof expect.stringContaining, R> {}
 }
 
 declare global {
   namespace jest {
-    type Matchers<R = void> = TestingLibraryMatchers<typeof expect.stringContaining, R>;
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+    interface Matchers<R = void> extends TestingLibraryMatchers<typeof expect.stringContaining, R> {}
   }
 }

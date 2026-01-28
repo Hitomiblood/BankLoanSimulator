@@ -2,6 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
 import '@testing-library/jest-dom';
 import ErrorBoundary from '../../components/ErrorBoundary';
+import * as navigation from '../../utils/navigation';
 
 // Componente que lanza un error
 const ThrowError = ({ shouldThrow }: { shouldThrow: boolean }) => {
@@ -166,6 +167,11 @@ describe('ErrorBoundary', () => {
   });
 
   describe('Interacciones', () => {
+    beforeEach(() => {
+      // Mock de la función de navegación
+      jest.spyOn(navigation, 'goHome').mockImplementation(() => {});
+    });
+
     it('botón "Reintentar" debe resetear el estado de error', () => {
       const { rerender } = render(
         <ErrorBoundary key="error">
@@ -189,9 +195,6 @@ describe('ErrorBoundary', () => {
     });
 
     it('botón "Volver al inicio" debe cambiar location', () => {
-      delete (window as Partial<Window>).location;
-      (window as Partial<Window> & { location: { href: string } }).location = { href: '' };
-
       render(
         <ErrorBoundary>
           <ThrowError shouldThrow={true} />
@@ -201,7 +204,8 @@ describe('ErrorBoundary', () => {
       const homeButton = screen.getByRole('button', { name: /volver al inicio/i });
       fireEvent.click(homeButton);
 
-      expect(window.location.href).toMatch(/\/$/); // Termina con /
+      // Verificar que se llamó a la función de navegación
+      expect(navigation.goHome).toHaveBeenCalledTimes(1);
     });
   });
 

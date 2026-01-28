@@ -10,6 +10,7 @@ import {
 } from '../../utils/errorHandler';
 import { toast } from 'react-toastify';
 import { AxiosError } from 'axios';
+import type { InternalAxiosRequestConfig } from 'axios';
 
 // Mock react-toastify
 jest.mock('react-toastify', () => ({
@@ -26,14 +27,14 @@ const createAxiosError = (status: number, data: Record<string, unknown> = {}): A
   const error = new AxiosError(
     'Mock error',
     undefined,
-    {} as AxiosError['config'],
+    {} as InternalAxiosRequestConfig,
     {},
     {
       status,
       data,
       statusText: 'Mock Status',
       headers: {},
-      config: {} as AxiosError['config'],
+      config: {} as InternalAxiosRequestConfig,
     }
   );
   return error;
@@ -123,7 +124,7 @@ describe('errorHandler utils', () => {
     });
 
     it('debe manejar errores de red sin respuesta', () => {
-      const error = new AxiosError('Network Error', undefined, {} as AxiosError['config'], {});
+      const error = new AxiosError('Network Error', undefined, {} as InternalAxiosRequestConfig, {});
       error.request = {};
 
       const result = parseAxiosError(error);
