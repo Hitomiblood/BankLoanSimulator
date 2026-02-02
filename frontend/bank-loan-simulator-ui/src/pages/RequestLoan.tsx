@@ -13,9 +13,11 @@ import {
   Paper,
   InputAdornment,
   Divider,
+  CircularProgress,
 } from "@mui/material";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import SendIcon from "@mui/icons-material/Send";
+
 
 function RequestLoan() {
   const [amount, setAmount] = useState("");
@@ -23,10 +25,12 @@ function RequestLoan() {
   const [termInMonths, setTermInMonths] = useState("");
   const [monthlyPayment, setMonthlyPayment] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [calculating, setCalculating] = useState(false);
   const navigate = useNavigate();
 
   const handleCalculate = async () => {
     setMonthlyPayment(null);
+    setCalculating(true);
 
     if (!amount || !interestRate || !termInMonths) {
       showWarningToast("Por favor completa todos los campos para calcular");
@@ -46,6 +50,8 @@ function RequestLoan() {
       showSuccessToast("¡Cuota mensual calculada!");
     } catch (err: unknown) {
       showErrorToast(err, "Error al calcular la cuota mensual");
+    } finally {
+      setCalculating(false);
     }
   };
 
@@ -94,11 +100,11 @@ function RequestLoan() {
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              InputProps={{
+              slotProps={{ input: {
                 startAdornment: (
                   <InputAdornment position="start">€</InputAdornment>
                 ),
-              }}
+              }}}
               helperText="Monto entre €1,000 y €1,000,000"
               sx={{ mb: 3 }}
               required
@@ -111,9 +117,9 @@ function RequestLoan() {
               type="number"
               value={interestRate}
               onChange={(e) => setInterestRate(e.target.value)}
-              InputProps={{
+              slotProps={{ input: {
                 startAdornment: <InputAdornment position="start">%</InputAdornment>,
-              }}
+              }}}
               helperText="Tasa entre 0% y 50%"
               sx={{ mb: 3 }}
               required
@@ -132,14 +138,16 @@ function RequestLoan() {
               disabled={loading}
             />
 
+
             <Button
               fullWidth
               variant="outlined"
-              startIcon={<CalculateIcon />}
+              startIcon={calculating ? <CircularProgress size={20} /> : <CalculateIcon />}
               onClick={handleCalculate}
+              disabled={loading || calculating}
               sx={{ mb: 3 }}
             >
-              Calcular Cuota Mensual
+              {calculating ? "Calculando..." : "Calcular Cuota Mensual"}
             </Button>
 
             {monthlyPayment !== null && (
@@ -165,12 +173,10 @@ function RequestLoan() {
             <Divider sx={{ mb: 3 }} />
 
             <Button
-              fullWidth
-              variant="contained"
               type="submit"
-              startIcon={<SendIcon />}
-              disabled={loading}
-              size="large"
+              variant="contained"
+              endIcon={loading ? <CircularProgress size={20} color="inherit" /> : <SendIcon />}
+              disabled={!amount || !interestRate || !termInMonths || loading}
             >
               {loading ? "Enviando..." : "Solicitar Préstamo"}
             </Button>

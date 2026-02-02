@@ -71,7 +71,6 @@ function AdminLoans() {
       await api.put(`/loans/${selectedLoan.id}/review`, reviewData);
       
       showSuccessToast("Préstamo actualizado exitosamente");
-      showSuccessToast("Préstamo actualizado exitosamente");
       await fetchLoans();
       handleCloseDialog();
     } catch (err: unknown) {
@@ -182,6 +181,7 @@ function AdminLoans() {
                 value={adminComments}
                 onChange={(e) => setAdminComments(e.target.value)}
                 helperText="Opcional: añade comentarios sobre la decisión"
+                disabled={submitting}
               />
             </Box>
           </DialogContent>
@@ -192,7 +192,8 @@ function AdminLoans() {
             <Button
               onClick={handleReview}
               variant="contained"
-              disabled={submitting}
+              disabled={reviewStatus === undefined || reviewStatus === null || submitting}
+              startIcon={submitting ? <CircularProgress size={20} color="inherit" /> : undefined}
             >
               {submitting ? "Guardando..." : "Guardar Revisión"}
             </Button>
